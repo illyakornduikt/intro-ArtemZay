@@ -1,6 +1,8 @@
 package main;
 
 import entity.Player;
+import object.SuperObject;
+import tile.TileManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,17 +13,34 @@ public class GamePanel extends JPanel implements Runnable {
     final int scale = 3;
 
     public final  int tileSize = originalTileSize * scale;
-    final int maxScreenCol = 16;
-    final int maxScreenRow = 12;
-    final int screenWidth = tileSize * maxScreenCol;
-    final int screenHeight = tileSize * maxScreenRow;
+    public final int maxScreenCol = 16;
+    public final int maxScreenRow = 12;
+    public final int screenWidth = tileSize * maxScreenCol;
+    public final int screenHeight = tileSize * maxScreenRow;
+
+    //WORLD SETTINGS
+    public final int maxWordCol = 50;
+    public final int maxWordRow = 50;
+    public final int worldWidth = tileSize * maxWordCol;
+    public final int worldHeight = tileSize * maxScreenRow;
 
     int FPS = 60;
 
-    KeyHandler keyH = new KeyHandler();
+    TileManager tileManager = new TileManager(this);
 
+    KeyHandler keyH = new KeyHandler();
+    Sound sound = new Sound();
+
+
+
+    public CollisionChecker cChecker = new CollisionChecker(this);
+
+    public AssetSetter aSetter = new AssetSetter(this);
     Thread gameThread;
-    Player player = new Player(this,keyH);
+
+    public Player player = new Player(this,keyH);
+
+    public SuperObject obj[] = new SuperObject[10];
 
     int playerX = 100;
     int playerY = 100;
@@ -34,6 +53,11 @@ public class GamePanel extends JPanel implements Runnable {
         this.addKeyListener(keyH);
         this.setFocusable(true);
 
+    }
+    public void setupGame(){
+        aSetter.setObject();
+
+        playMusic(0);
     }
     public void startGameThread(){
         gameThread = new Thread(this);
@@ -78,8 +102,29 @@ public class GamePanel extends JPanel implements Runnable {
 
         Graphics2D g2 = (Graphics2D) g;
 
+        tileManager.draw(g2);
+
+        for (int i = 0; i < obj.length; i++){
+            if (obj[i] != null){
+                obj[i].draw(g2,this);
+            }
+        }
+
         player.draw(g2);
 
         g2.dispose();
+    }
+    public void playMusic(int i){
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+
+    }
+    public void stopMusic(){
+        sound.stop();
+    }
+    public void playSE(int i){
+        sound.setFile(i);
+        sound.play();
     }
 }
